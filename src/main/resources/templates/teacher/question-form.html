@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>题目表单 - 在线考试系统</title>
+    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <h1 class="page-title" th:text="${question != null ? '编辑题目' : '新增题目'}">题目表单</h1>
+
+    <div class="card">
+        <form th:action="${question != null} ? @{/teacher/question/edit} : @{/teacher/question/add}" method="post">
+            <input type="hidden" name="id" th:if="${question != null}" th:value="${question.id}">
+            <input type="hidden" name="courseId" th:if="${question != null}" th:value="${question.courseId}">
+            <input type="hidden" name="courseId" th:if="${question == null}" th:value="${courseId}">
+
+            <div class="form-group">
+                <label>题型</label>
+                <select name="questionType" class="form-control">
+                    <option value="single" th:selected="${question == null || question.questionType == 'single'}">单选题</option>
+                    <option value="multiple" th:selected="${question != null && question.questionType == 'multiple'}">多选题</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>题干</label>
+                <textarea name="questionText" class="form-control" required
+                          th:text="${question != null ? question.questionText : ''}"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>选项A</label>
+                    <input type="text" name="optionA" class="form-control" th:value="${question != null ? question.optionA : ''}">
+                </div>
+                <div class="form-group">
+                    <label>选项B</label>
+                    <input type="text" name="optionB" class="form-control" th:value="${question != null ? question.optionB : ''}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>选项C</label>
+                    <input type="text" name="optionC" class="form-control" th:value="${question != null ? question.optionC : ''}">
+                </div>
+                <div class="form-group">
+                    <label>选项D</label>
+                    <input type="text" name="optionD" class="form-control" th:value="${question != null ? question.optionD : ''}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>正确答案（如A或AB）</label>
+                    <input type="text" name="correctAnswer" class="form-control" required
+                           th:value="${question != null ? question.correctAnswer : ''}" placeholder="单选填A/B/C/D，多选如AB">
+                </div>
+                <div class="form-group">
+                    <label>分值</label>
+                    <input type="number" name="score" class="form-control" required min="1"
+                           th:value="${question != null ? question.score : 10}">
+                </div>
+            </div>
+            <div class="flex gap-8">
+                <button type="submit" class="btn btn-primary">保存</button>
+                <a th:href="@{/teacher/question(courseId=${question != null ? question.courseId : courseId})}" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

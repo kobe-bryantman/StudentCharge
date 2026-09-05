@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>课程管理 - 在线考试系统</title>
+    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <div class="flex-between mb-16">
+        <h1 class="page-title" style="margin-bottom:0;">课程管理</h1>
+        <a th:href="@{/teacher/course/add}" class="btn btn-primary">+ 新增课程</a>
+    </div>
+
+    <div class="card">
+        <div th:if="${courses.isEmpty()}" class="empty">
+            <div class="empty-text">暂无课程，请点击右上角新增</div>
+        </div>
+        <table th:if="${!courses.isEmpty()}" class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>课程名称</th>
+                <th>课程描述</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${courses}">
+                <td th:text="${c.id}">1</td>
+                <td th:text="${c.courseName}">课程名</td>
+                <td th:text="${c.description}">描述</td>
+                <td th:text="${#temporals.format(c.createTime, 'yyyy-MM-dd HH:mm')}">2024-01-01</td>
+                <td>
+                    <a th:href="@{/teacher/question(courseId=${c.id})}" class="btn btn-secondary btn-sm">题库</a>
+                    <a th:href="@{/teacher/course/edit/{id}(id=${c.id})}" class="btn btn-warning btn-sm">编辑</a>
+                    <a th:href="@{/teacher/course/delete/{id}(id=${c.id})}" class="btn btn-danger btn-sm">删除</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

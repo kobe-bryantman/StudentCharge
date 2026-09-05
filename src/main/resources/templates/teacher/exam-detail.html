@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>考试详情 - 在线考试系统</title>
+    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <h1 class="page-title">考试详情</h1>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">基本信息</span>
+            <a th:href="@{/teacher/exam}" class="btn btn-secondary btn-sm">&larr; 返回</a>
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+                <div><strong>课程：</strong><span th:text="${course.courseName}">课程名</span></div>
+                <div><strong>学生：</strong><span th:text="${student.name}">学生名</span></div>
+                <div><strong>考试次数：</strong><span th:text="'第' + ${record.examCount} + '次'">第1次</span></div>
+                <div><strong>总得分：</strong>
+                    <span class="score-badge"
+                          th:classappend="${record.totalScore >= 80} ? 'score-high' : (${record.totalScore >= 60} ? 'score-mid' : 'score-low')"
+                          th:text="${record.totalScore} + '分'">0分</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">答题明细</span>
+        </div>
+        <div class="card-body">
+            <div th:each="q, iter : ${questions}" class="question-item">
+                <div class="question-title">
+                    <span class="question-no" th:text="'第' + ${iter.count} + '题'">第1题</span>
+                    <span th:text="${q.questionText}">题干</span>
+                    <span class="question-score" th:text="${q.score} + '分'">10分</span>
+                </div>
+                <div class="question-options">
+                    <div class="option" th:text="'A. ' + ${q.optionA}">选项A</div>
+                    <div class="option" th:text="'B. ' + ${q.optionB}">选项B</div>
+                    <div class="option" th:text="'C. ' + ${q.optionC}">选项C</div>
+                    <div class="option" th:text="'D. ' + ${q.optionD}">选项D</div>
+                </div>
+                <div class="mt-8">
+                    <strong>正确答案：</strong><span class="correct" th:text="${q.correctAnswer}">A</span>
+                    <span class="ml-24"></span>
+                    <strong>学生答案：</strong>
+                    <span th:each="a : ${answers}" th:if="${a.questionId == q.id}"
+                          th:classappend="${a.isCorrect == 1} ? 'correct' : 'wrong'"
+                          th:text="${a.studentAnswer != null && a.studentAnswer != '' ? a.studentAnswer : '未作答'}">未作答</span>
+                    <span th:each="a : ${answers}" th:if="${a.questionId == q.id}">
+                        （<span th:classappend="${a.isCorrect == 1} ? 'correct' : 'wrong'"
+                               th:text="${a.isCorrect == 1 ? '正确' : '错误'}">正确</span>，
+                        得<span th:text="${a.score}">0</span>分）
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

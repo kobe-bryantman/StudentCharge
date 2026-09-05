@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>教师首页 - 在线考试系统</title>
+    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <h1 class="page-title">教师首页<span class="subtitle">欢迎使用在线考试系统</span></h1>
+
+    <div class="form-row">
+        <div class="card" style="flex:1;">
+            <div class="card-header">
+                <span class="card-title">我的课程</span>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 36px; font-weight: bold; color: #409eff;" th:text="${courseCount}">0</div>
+                <div class="text-muted">门课程</div>
+            </div>
+        </div>
+        <div class="card" style="flex:1;">
+            <div class="card-header">
+                <span class="card-title">题库题目</span>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 36px; font-weight: bold; color: #67c23a;" th:text="${questionCount}">0</div>
+                <div class="text-muted">道题目</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">最近课程</span>
+            <a th:href="@{/teacher/course}" class="btn btn-primary btn-sm">课程管理</a>
+        </div>
+        <div class="card-body">
+            <div th:if="${courses.isEmpty()}" class="empty">
+                <div class="empty-text">暂无课程</div>
+                <a th:href="@{/teacher/course/add}" class="btn btn-primary">添加第一门课程</a>
+            </div>
+            <table th:if="${!courses.isEmpty()}" class="table">
+                <thead>
+                <tr><th>课程名称</th><th>描述</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${courses}">
+                    <td th:text="${c.courseName}">课程名</td>
+                    <td th:text="${c.description}">描述</td>
+                    <td>
+                        <a th:href="@{/teacher/question(courseId=${c.id})}" class="btn btn-secondary btn-sm">题库</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- 公共head片段（meta + CSS），页面用 th:insert 插入到 head 中 -->
+<th:block th:fragment="commonHead">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+</th:block>
+
+<!-- 教师端导航栏 fragment -->
+<nav th:fragment="teacherNav" class="navbar">
+    <a class="navbar-brand" th:href="@{/}">在线考试系统</a>
+    <div class="navbar-nav">
+        <a th:href="@{/teacher/index}">首页</a>
+        <a th:href="@{/teacher/course}">课程管理</a>
+        <a th:href="@{/teacher/exam}">考试情况</a>
+        <a th:href="@{/teacher/profile}">个人信息</a>
+        <a th:href="@{/logout}">退出登录</a>
+    </div>
+    <span class="navbar-user" th:if="${session.user != null}">
+        欢迎，<span th:text="${session.user.name}">用户</span>（教师）
+    </span>
+</nav>
+
+<!-- 学生端导航栏 fragment -->
+<nav th:fragment="studentNav" class="navbar">
+    <a class="navbar-brand" th:href="@{/}">在线考试系统</a>
+    <div class="navbar-nav">
+        <a th:href="@{/student/index}">首页</a>
+        <a th:href="@{/student/course}">选课中心</a>
+        <a th:href="@{/student/exam}">我的考试</a>
+        <a th:href="@{/student/profile}">个人信息</a>
+        <a th:href="@{/logout}">退出登录</a>
+    </div>
+    <span class="navbar-user" th:if="${session.user != null}">
+        欢迎，<span th:text="${session.user.name}">用户</span>（学生）
+    </span>
+</nav>
+
+</body>
+</html>

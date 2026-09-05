@@ -1,0 +1,42 @@
+# ===== Java =====
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ===== IDEA =====
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# ===== Eclipse =====
+.settings/
+.project
+.classpath
+bin/
+
+# ===== Maven =====
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+release.properties
+
+# ===== SpringBoot =====
+application-local.yml
+*.log
+logs/
+
+# ===== 操作系统 =====
+.DS_Store
+Thumbs.db
+
+# ===== 其他 =====
+*.tmp
+*.bak
+*.swp

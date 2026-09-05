@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>在线答题 - 在线考试系统</title>
+    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: studentNav"></nav>
+<div class="container">
+    <h1 class="page-title" th:text="'在线答题 - ' + ${course.courseName}">在线答题</h1>
+
+    <form th:action="@{/student/exam/submit}" method="post">
+        <input type="hidden" name="recordId" th:value="${record.id}">
+
+        <div th:each="q, iter : ${questions}" class="question-item">
+            <div class="question-title">
+                <span class="question-no" th:text="'第' + ${iter.count} + '题'">第1题</span>
+                <span th:text="${q.questionText}">题干</span>
+                <span class="question-score">
+                    <span th:if="${q.questionType == 'single'}">[单选]</span>
+                    <span th:if="${q.questionType == 'multiple'}">[多选]</span>
+                    <span th:text="${q.score} + '分'">10分</span>
+                </span>
+            </div>
+            <div class="question-options">
+                <div class="option">
+                    <label>
+                        <input th:if="${q.questionType == 'single'}" type="radio"
+                               th:name="'q_' + ${q.id}" value="A">
+                        <input th:if="${q.questionType == 'multiple'}" type="checkbox"
+                               th:name="'q_' + ${q.id}" value="A">
+                        <span th:text="'A. ' + ${q.optionA}">选项A</span>
+                    </label>
+                </div>
+                <div class="option">
+                    <label>
+                        <input th:if="${q.questionType == 'single'}" type="radio"
+                               th:name="'q_' + ${q.id}" value="B">
+                        <input th:if="${q.questionType == 'multiple'}" type="checkbox"
+                               th:name="'q_' + ${q.id}" value="B">
+                        <span th:text="'B. ' + ${q.optionB}">选项B</span>
+                    </label>
+                </div>
+                <div class="option">
+                    <label>
+                        <input th:if="${q.questionType == 'single'}" type="radio"
+                               th:name="'q_' + ${q.id}" value="C">
+                        <input th:if="${q.questionType == 'multiple'}" type="checkbox"
+                               th:name="'q_' + ${q.id}" value="C">
+                        <span th:text="'C. ' + ${q.optionC}">选项C</span>
+                    </label>
+                </div>
+                <div class="option">
+                    <label>
+                        <input th:if="${q.questionType == 'single'}" type="radio"
+                               th:name="'q_' + ${q.id}" value="D">
+                        <input th:if="${q.questionType == 'multiple'}" type="checkbox"
+                               th:name="'q_' + ${q.id}" value="D">
+                        <span th:text="'D. ' + ${q.optionD}">选项D</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="card text-center">
+            <button type="submit" class="btn btn-success" style="padding:12px 40px; font-size:16px;">
+                交 卷
+            </button>
+            <a th:href="@{/student/exam}" class="btn btn-secondary" style="padding:12px 40px; font-size:16px;">
+                暂存退出
+            </a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

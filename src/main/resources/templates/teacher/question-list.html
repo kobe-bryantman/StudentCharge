@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>题库管理 - 在线考试系统</title>
+    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <div class="flex-between mb-16">
+        <h1 class="page-title" style="margin-bottom:0;">题库管理 - <span th:text="${course.courseName}">课程名</span></h1>
+        <a th:href="@{/teacher/question/add(courseId=${course.id})}" class="btn btn-primary">+ 新增题目</a>
+    </div>
+
+    <div class="card">
+        <div th:if="${questions.isEmpty()}" class="empty">
+            <div class="empty-text">暂无题目，请点击右上角新增</div>
+        </div>
+        <table th:if="${!questions.isEmpty()}" class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>题型</th>
+                <th>题干</th>
+                <th>正确答案</th>
+                <th>分值</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="q : ${questions}">
+                <td th:text="${q.id}">1</td>
+                <td>
+                    <span class="score-badge" th:classappend="${q.questionType == 'single'} ? 'score-high' : 'score-mid'"
+                          th:text="${q.questionType == 'single'} ? '单选' : '多选'">单选</span>
+                </td>
+                <td th:text="${q.questionText}" style="max-width:300px;">题干</td>
+                <td th:text="${q.correctAnswer}">A</td>
+                <td th:text="${q.score}">10</td>
+                <td>
+                    <a th:href="@{/teacher/question/edit/{id}(id=${q.id})}" class="btn btn-warning btn-sm">编辑</a>
+                    <a th:href="@{/teacher/question/delete/{id}(id=${q.id},courseId=${course.id})}" class="btn btn-danger btn-sm">删除</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="mt-16">
+            <a th:href="@{/teacher/course}" class="btn btn-secondary btn-sm">&larr; 返回课程列表</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
