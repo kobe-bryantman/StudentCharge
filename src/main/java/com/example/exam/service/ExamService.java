@@ -83,4 +83,11 @@ public interface ExamService {
      */
     List<ExamRecord> listSubmittedRecordsByStudentAndCourse(Long studentId, Long courseId);
 
+    /**
+     * 重考：创建新的ongoing考试记录
+     * exam_count = 该学生该课程已有最大exam_count + 1，无则1
+     * 不删除历史记录
+     */
+    ExamRecord retakeExam(Long studentId, Long courseId);
+
 }

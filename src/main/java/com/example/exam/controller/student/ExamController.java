@@ -77,7 +77,7 @@ public class ExamController {
 
     /**
      * 开始/继续考试
-     * 已交卷的课程不允许再次进入，重定向到成绩页
+     * 已交卷的课程自动创建新的ongoing记录（重考逻辑）
      */
     @GetMapping("/start")
     public String startExam(@RequestParam Long courseId, HttpServletRequest request, Model model) {
@@ -88,10 +88,10 @@ public class ExamController {
             return "redirect:/student/exam/list";
         }
 
-        // 已交卷记录保护：检查最新记录，如果submitted则重定向成绩页
+        // 已交卷记录处理：自动创建新的ongoing记录（等同于重考）
         ExamRecord latest = examService.getLatestRecord(student.getId(), courseId);
         if (latest != null && "submitted".equals(latest.getStatus())) {
-            return "redirect:/student/exam/result?examRecordId=" + latest.getId();
+            examService.retakeExam(student.getId(), courseId);
         }
 
         // 获取或创建ongoing考试记录
@@ -108,6 +108,23 @@ public class ExamController {
         model.addAttribute("questions", questions);
         model.addAttribute("totalScore", totalScore);
         return "student/exam/start";
+    }
+
+    /**
+     * 重考：创建新的ongoing记录，重定向到考试页
+     */
+    @PostMapping("/retake")
+    public String retakeExam(@RequestParam Long courseId, HttpServletRequest request) {
+        User student = getCurrentUser(request);
+
+        // 验证已选该课程
+        if (!studentCourseService.isSelected(student.getId(), courseId)) {
+            return "redirect:/student/exam/list";
+        }
+
+        // 创建新的ongoing记录
+        examService.retakeExam(student.getId(), courseId);
+        return "redirect:/student/exam/start?courseId=" + courseId;
     }
 
     /**

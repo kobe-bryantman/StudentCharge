@@ -205,4 +205,27 @@ public class ExamServiceImpl implements ExamService {
                         .orderByAsc(ExamRecord::getExamCount));
     }
 
+    @Override
+    @Transactional
+    public ExamRecord retakeExam(Long studentId, Long courseId) {
+        // 计算新的exam_count：查该学生该课程已有最大count + 1
+        List<ExamRecord> existing = examRecordMapper.selectList(
+                new LambdaQueryWrapper<ExamRecord>()
+                        .eq(ExamRecord::getStudentId, studentId)
+                        .eq(ExamRecord::getCourseId, courseId)
+                        .orderByDesc(ExamRecord::getExamCount));
+        int examCount = existing.isEmpty() ? 1 : existing.get(0).getExamCount() + 1;
+
+        // 新建ongoing记录，不删除历史
+        ExamRecord record = new ExamRecord();
+        record.setStudentId(studentId);
+        record.setCourseId(courseId);
+        record.setTotalScore(0);
+        record.setStatus("ongoing");
+        record.setExamCount(examCount);
+        examRecordMapper.insert(record);
+
+        return record;
+    }
+
 }

@@ -50,9 +50,13 @@
                         <!-- 进行中：继续考试 -->
                         <a th:case="'ongoing'" th:href="@{/student/exam/start(courseId=${c.id})}"
                            class="btn btn-warning btn-sm">继续考试</a>
-                        <!-- 已交卷：按钮置灰（重考第7天做） -->
+                        <!-- 已交卷：重考按钮 + 查看成绩 -->
                         <span th:case="'submitted'">
-                            <button type="button" class="btn btn-secondary btn-sm" disabled>已完成</button>
+                            <form th:action="@{/student/exam/retake}" method="post" style="display:inline;"
+                                  onsubmit="return confirm('确定要重新考试吗？历史成绩将保留，本次为新的一次考试。')">
+                                <input type="hidden" name="courseId" th:value="${c.id}">
+                                <button type="submit" class="btn btn-warning btn-sm">重考</button>
+                            </form>
                             <a th:href="@{/student/exam/result(examRecordId=${latestRecords[c.id].id})}"
                                class="btn btn-success btn-sm">查看成绩</a>
                         </span>
