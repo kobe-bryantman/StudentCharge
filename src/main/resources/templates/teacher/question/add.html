@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/layout :: head('新增考题 - 在线考试系统')"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <h1 class="page-title">新增考题</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <!-- 错误提示 -->
+            <div class="msg msg-error" th:if="${msg != null}" th:text="${msg}"></div>
+
+            <form th:action="@{/teacher/question/add}" method="post">
+                <input type="hidden" name="courseId" th:value="${course.id}">
+
+                <div class="form-group">
+                    <label>所属课程</label>
+                    <input type="text" class="form-control readonly" th:value="${course.courseName}" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label>题干 <span style="color:red">*</span></label>
+                    <textarea name="questionText" class="form-control" placeholder="请输入题干内容" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>题型 <span style="color:red">*</span></label>
+                        <select name="questionType" class="form-control" required>
+                            <option value="single">单选题</option>
+                            <option value="multiple">多选题</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>分值 <span style="color:red">*</span></label>
+                        <input type="number" name="score" class="form-control" value="5" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>选项A <span style="color:red">*</span></label>
+                    <input type="text" name="optionA" class="form-control" placeholder="请输入选项A内容" required>
+                </div>
+                <div class="form-group">
+                    <label>选项B <span style="color:red">*</span></label>
+                    <input type="text" name="optionB" class="form-control" placeholder="请输入选项B内容" required>
+                </div>
+                <div class="form-group">
+                    <label>选项C <span style="color:red">*</span></label>
+                    <input type="text" name="optionC" class="form-control" placeholder="请输入选项C内容" required>
+                </div>
+                <div class="form-group">
+                    <label>选项D <span style="color:red">*</span></label>
+                    <input type="text" name="optionD" class="form-control" placeholder="请输入选项D内容" required>
+                </div>
+
+                <div class="form-group">
+                    <label>正确答案 <span style="color:red">*</span>（单选题请只选一项，多选题可选多项）</label>
+                    <div style="padding: 8px 0;">
+                        <label style="margin-right: 24px; font-weight: normal;">
+                            <input type="checkbox" name="correctAnswer" value="A"> A
+                        </label>
+                        <label style="margin-right: 24px; font-weight: normal;">
+                            <input type="checkbox" name="correctAnswer" value="B"> B
+                        </label>
+                        <label style="margin-right: 24px; font-weight: normal;">
+                            <input type="checkbox" name="correctAnswer" value="C"> C
+                        </label>
+                        <label style="font-weight: normal;">
+                            <input type="checkbox" name="correctAnswer" value="D"> D
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">保存</button>
+                <a th:href="@{/teacher/question/list(courseId=${course.id})}" class="btn btn-secondary">返回</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

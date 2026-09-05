@@ -70,7 +70,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="c : ${courses}">
-                    <td th:text="${c.courseName}">课程名</td>
+                    <td><a th:href="@{/teacher/question/list(courseId=${c.id})}" th:text="${c.courseName}">课程名</a></td>
                     <td th:text="${c.description}">描述</td>
                 </tr>
                 </tbody>

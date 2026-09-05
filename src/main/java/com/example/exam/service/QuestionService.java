@@ -38,6 +38,13 @@ public interface QuestionService {
     void remove(Long id);
 
     /**
+     * 按课程ID删除所有考题
+     *
+     * @param courseId 课程ID
+     */
+    void removeByCourseId(Long courseId);
+
+    /**
      * 统计课程题目数量
      */
     long countByCourseId(Long courseId);

@@ -48,6 +48,15 @@ public class QuestionServiceImpl implements QuestionService {
         questionMapper.deleteById(id);
     }
 
+    /**
+     * 按课程ID删除所有考题
+     */
+    @Override
+    public void removeByCourseId(Long courseId) {
+        questionMapper.delete(
+                new LambdaQueryWrapper<Question>().eq(Question::getCourseId, courseId));
+    }
+
     @Override
     public long countByCourseId(Long courseId) {
         return questionMapper.selectCount(

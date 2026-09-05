@@ -38,8 +38,24 @@ public interface CourseService {
     void update(Course course);
 
     /**
-     * 删除课程
+     * 删除课程（不级联考题）
      */
     void remove(Long id);
+
+    /**
+     * 删除课程及其下所有考题（事务）
+     *
+     * @param id 课程ID
+     */
+    void removeWithQuestions(Long id);
+
+    /**
+     * 验证课程是否属于指定教师
+     *
+     * @param courseId  课程ID
+     * @param teacherId 教师ID
+     * @return true属于，false不属于
+     */
+    boolean verifyOwnership(Long courseId, Long teacherId);
 
 }

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/layout :: head('考题管理 - 在线考试系统')"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <!-- 面包屑/返回 -->
+    <div class="mb-16">
+        <a th:href="@{/teacher/course/list}" class="btn btn-secondary btn-sm">← 返回课程列表</a>
+        <span style="margin-left: 16px; font-size: 18px; font-weight: bold;" th:text="${course.courseName}">课程名</span>
+    </div>
+
+    <h1 class="page-title">考题管理</h1>
+
+    <!-- 操作栏 -->
+    <div class="flex-between mb-16">
+        <span></span>
+        <a th:href="@{/teacher/question/add(courseId=${course.id})}" class="btn btn-primary">新增考题</a>
+    </div>
+
+    <!-- 成功/错误提示 -->
+    <div class="msg msg-success" th:if="${msg != null and msgType == null}" th:text="${msg}"></div>
+    <div class="msg msg-error" th:if="${msg != null and msgType != null}" th:text="${msg}"></div>
+
+    <!-- 考题列表 -->
+    <div class="card">
+        <div class="card-body">
+            <div th:if="${questions.isEmpty()}" class="empty">
+                <div class="empty-text">暂无考题，请点击右上角"新增考题"创建</div>
+            </div>
+            <table th:if="${!questions.isEmpty()}" class="table">
+                <thead>
+                <tr>
+                    <th>题号</th>
+                    <th>题干</th>
+                    <th>题型</th>
+                    <th>分值</th>
+                    <th>正确答案</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="q, iter : ${questions}">
+                    <td th:text="${iter.index + 1}">1</td>
+                    <td th:text="${#strings.length(q.questionText) > 50 ? #strings.substring(q.questionText, 0, 50) + '...' : q.questionText}" style="max-width: 300px;">题干</td>
+                    <td>
+                        <span th:if="${q.questionType == 'single'}">单选题</span>
+                        <span th:if="${q.questionType == 'multiple'}">多选题</span>
+                    </td>
+                    <td th:text="${q.score}">5</td>
+                    <td th:text="${q.correctAnswer}">A</td>
+                    <td>
+                        <a th:href="@{/teacher/question/edit(id=${q.id})}" class="btn btn-warning btn-sm">编辑</a>
+                        <form th:action="@{/teacher/question/delete}" method="post" style="display:inline;" onsubmit="return confirm('确定删除该考题吗？')">
+                            <input type="hidden" name="id" th:value="${q.id}">
+                            <input type="hidden" name="courseId" th:value="${course.id}">
+                            <button type="submit" class="btn btn-danger btn-sm">删除</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
