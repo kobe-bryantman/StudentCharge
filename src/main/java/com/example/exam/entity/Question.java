@@ -7,6 +7,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -29,6 +32,7 @@ public class Question implements Serializable {
     private Long courseId;
 
     /** 题干 */
+    @NotBlank(message = "题干不能为空")
     private String questionText;
 
     /** 选项A */
@@ -50,6 +54,8 @@ public class Question implements Serializable {
     private String questionType;
 
     /** 分值 */
+    @NotNull(message = "分值不能为空")
+    @Min(value = 1, message = "分值至少1分")
     private Integer score;
 
     /** 创建时间 */

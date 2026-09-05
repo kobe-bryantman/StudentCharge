@@ -228,4 +228,14 @@ public class ExamServiceImpl implements ExamService {
         return record;
     }
 
+    @Override
+    public boolean hasExamRecords(Long courseId) {
+        if (courseId == null) {
+            return false;
+        }
+        Long count = examRecordMapper.selectCount(
+                new LambdaQueryWrapper<ExamRecord>().eq(ExamRecord::getCourseId, courseId));
+        return count != null && count > 0;
+    }
+
 }

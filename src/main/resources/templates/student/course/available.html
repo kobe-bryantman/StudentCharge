@@ -8,8 +8,7 @@
 <div class="container">
     <h1 class="page-title">选课中心</h1>
 
-    <!-- 成功提示 -->
-    <div th:if="${msg}" class="msg-success" th:text="${msg}" style="padding:10px; margin-bottom:15px; border-radius:4px;">操作成功</div>
+    <th:block th:replace="fragments/layout :: msgArea"></th:block>
 
     <div class="card">
         <table class="table">

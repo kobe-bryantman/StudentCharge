@@ -8,11 +8,13 @@ import com.example.exam.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -51,28 +53,28 @@ public class CourseController {
      * GET /teacher/course/add 新增课程页面
      */
     @GetMapping("/add")
-    public String addPage() {
+    public String addPage(Model model) {
+        model.addAttribute("course", new Course());
         return "teacher/course/add";
     }
 
     /**
-     * POST /teacher/course/add 新增课程提交
+     * POST /teacher/course/add 新增课程提交（@Valid校验）
      */
     @PostMapping("/add")
-    public String add(@RequestParam String courseName,
-                      @RequestParam(required = false) String description,
+    public String add(@Valid @ModelAttribute Course course,
+                      BindingResult bindingResult,
                       HttpServletRequest request,
                       RedirectAttributes redirectAttributes) {
-        // 课程名称非空校验
-        if (courseName == null || courseName.trim().isEmpty()) {
-            redirectAttributes.addFlashAttribute("msg", "课程名称不能为空");
+        // 参数校验失败，返回原页面回显
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("msg", bindingResult.getFieldError().getDefaultMessage());
             redirectAttributes.addFlashAttribute("msgType", "error");
+            redirectAttributes.addFlashAttribute("course", course);
             return "redirect:/teacher/course/add";
         }
         User teacher = getCurrentUser(request);
-        Course course = new Course();
-        course.setCourseName(courseName.trim());
-        course.setDescription(description);
+        course.setCourseName(course.getCourseName().trim());
         course.setTeacherId(teacher.getId());
         courseService.save(course);
         redirectAttributes.addFlashAttribute("msg", "新增成功");
@@ -90,40 +92,42 @@ public class CourseController {
             throw new BusinessException("无权操作该课程");
         }
         Course course = courseService.getById(id);
+        if (course == null) {
+            throw new BusinessException("课程不存在");
+        }
         model.addAttribute("course", course);
         return "teacher/course/edit";
     }
 
     /**
-     * POST /teacher/course/edit 编辑课程提交
+     * POST /teacher/course/edit 编辑课程提交（@Valid校验）
      */
     @PostMapping("/edit")
-    public String edit(@RequestParam Long id,
-                       @RequestParam String courseName,
-                       @RequestParam(required = false) String description,
+    public String edit(@Valid @ModelAttribute Course course,
+                       BindingResult bindingResult,
                        HttpServletRequest request,
                        RedirectAttributes redirectAttributes) {
         User teacher = getCurrentUser(request);
         // 权限验证
-        if (!courseService.verifyOwnership(id, teacher.getId())) {
+        if (!courseService.verifyOwnership(course.getId(), teacher.getId())) {
             throw new BusinessException("无权操作该课程");
         }
-        // 课程名称非空校验
-        if (courseName == null || courseName.trim().isEmpty()) {
-            redirectAttributes.addFlashAttribute("msg", "课程名称不能为空");
+        // 参数校验失败，返回原页面回显
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("msg", bindingResult.getFieldError().getDefaultMessage());
             redirectAttributes.addFlashAttribute("msgType", "error");
-            return "redirect:/teacher/course/edit?id=" + id;
+            redirectAttributes.addFlashAttribute("course", course);
+            return "redirect:/teacher/course/edit?id=" + course.getId();
         }
-        Course course = courseService.getById(id);
-        course.setCourseName(courseName.trim());
-        course.setDescription(description);
+        course.setCourseName(course.getCourseName().trim());
         courseService.update(course);
         redirectAttributes.addFlashAttribute("msg", "修改成功");
         return "redirect:/teacher/course/list";
     }
 
     /**
-     * POST /teacher/course/delete 删除课程（级联删除考题）
+     * POST /teacher/course/delete 删除课程
+     * 保护历史数据：有考试记录的课程禁止删除
      */
     @PostMapping("/delete")
     public String delete(@RequestParam Long id,
@@ -134,7 +138,7 @@ public class CourseController {
         if (!courseService.verifyOwnership(id, teacher.getId())) {
             throw new BusinessException("无权操作该课程");
         }
-        // 事务删除课程及其下所有考题
+        // 删除课程（有考试记录时会抛BusinessException）
         courseService.removeWithQuestions(id);
         redirectAttributes.addFlashAttribute("msg", "删除成功");
         return "redirect:/teacher/course/list";

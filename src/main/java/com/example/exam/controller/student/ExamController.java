@@ -1,5 +1,6 @@
 package com.example.exam.controller.student;
 
+import com.example.exam.common.BusinessException;
 import com.example.exam.controller.LoginController;
 import com.example.exam.entity.*;
 import com.example.exam.service.*;
@@ -83,6 +84,10 @@ public class ExamController {
     public String startExam(@RequestParam Long courseId, HttpServletRequest request, Model model) {
         User student = getCurrentUser(request);
 
+        // 验证课程存在
+        if (courseService.getById(courseId) == null) {
+            throw new BusinessException("课程不存在");
+        }
         // 验证已选该课程
         if (!studentCourseService.isSelected(student.getId(), courseId)) {
             return "redirect:/student/exam/list";
@@ -117,6 +122,10 @@ public class ExamController {
     public String retakeExam(@RequestParam Long courseId, HttpServletRequest request) {
         User student = getCurrentUser(request);
 
+        // 验证课程存在
+        if (courseService.getById(courseId) == null) {
+            throw new BusinessException("课程不存在");
+        }
         // 验证已选该课程
         if (!studentCourseService.isSelected(student.getId(), courseId)) {
             return "redirect:/student/exam/list";

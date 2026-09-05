@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -26,6 +27,7 @@ public class Course implements Serializable {
     private Long id;
 
     /** 课程名称 */
+    @NotBlank(message = "课程名称不能为空")
     private String courseName;
 
     /** 课程描述 */

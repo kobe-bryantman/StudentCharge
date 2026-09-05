@@ -90,4 +90,9 @@ public interface ExamService {
      */
     ExamRecord retakeExam(Long studentId, Long courseId);
 
+    /**
+     * 检查某课程是否存在考试记录（保护历史数据，有记录则禁止删除课程）
+     */
+    boolean hasExamRecords(Long courseId);
+
 }
