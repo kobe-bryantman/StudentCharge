@@ -31,9 +31,15 @@ public interface ExamService {
     List<Question> getExamQuestions(Long courseId);
 
     /**
-     * 交卷并自动阅卷
+     * 交卷并自动批改（事务方法）
+     * 验证记录归属+ongoing状态，批改每题，插入答题明细，更新成绩
+     *
+     * @param examRecordId 考试记录ID
+     * @param studentId    学生ID（从session获取）
+     * @param answers      学生答案 Map<题目ID, 答案字符串>
+     * @return 更新后的考试记录
      */
-    ExamRecord submitExam(Long examRecordId, Long studentId, Map<Long, String> answers);
+    ExamRecord gradeExam(Long examRecordId, Long studentId, Map<Long, String> answers);
 
     /**
      * 查询学生的考试记录列表

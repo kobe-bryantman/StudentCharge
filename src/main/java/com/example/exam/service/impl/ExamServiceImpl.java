@@ -1,6 +1,7 @@
 package com.example.exam.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.exam.common.BusinessException;
 import com.example.exam.entity.*;
 import com.example.exam.mapper.ExamAnswerMapper;
 import com.example.exam.mapper.ExamRecordMapper;
@@ -11,9 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 考试Service实现类
@@ -83,36 +83,36 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     @Transactional
-    public ExamRecord submitExam(Long examRecordId, Long studentId, Map<Long, String> answers) {
+    public ExamRecord gradeExam(Long examRecordId, Long studentId, Map<Long, String> answers) {
+        // a. 查exam_record，验证存在+归属当前学生+status=ongoing
         ExamRecord record = examRecordMapper.selectById(examRecordId);
         if (record == null) {
-            throw new RuntimeException("考试记录不存在");
+            throw new BusinessException("考试记录不存在");
         }
         if (!record.getStudentId().equals(studentId)) {
-            throw new RuntimeException("无权操作此考试记录");
+            throw new BusinessException("无权操作此考试记录");
         }
         if ("submitted".equals(record.getStatus())) {
-            throw new RuntimeException("试卷已提交，不能重复提交");
+            throw new BusinessException("已交卷，请勿重复提交");
         }
 
+        // b. 查该课程所有考题，转为Map便于查找
         List<Question> questions = questionService.listByCourseId(record.getCourseId());
-        int totalScore = 0;
+        Map<Long, Question> questionMap = questions.stream()
+                .collect(Collectors.toMap(Question::getId, q -> q));
 
+        // c. 遍历每道题批改
+        List<ExamAnswer> examAnswerList = new ArrayList<>();
         for (Question question : questions) {
-            String studentAnswer = answers.get(question.getId());
-            if (studentAnswer == null) {
-                studentAnswer = "";
-            }
+            String rawAnswer = answers.get(question.getId());
+            // 未作答存"未作答"
+            String studentAnswer = (rawAnswer == null || rawAnswer.trim().isEmpty())
+                    ? "未作答" : rawAnswer.trim().toUpperCase();
 
-            boolean isCorrect = false;
-            if ("multiple".equals(question.getQuestionType())) {
-                isCorrect = normalizeAnswer(studentAnswer).equals(normalizeAnswer(question.getCorrectAnswer()));
-            } else {
-                isCorrect = studentAnswer.trim().equalsIgnoreCase(question.getCorrectAnswer().trim());
-            }
+            // 与正确答案比对（忽略大小写+排序）
+            boolean isCorrect = normalizeAnswer(rawAnswer).equals(normalizeAnswer(question.getCorrectAnswer()));
 
             int score = isCorrect ? question.getScore() : 0;
-            totalScore += score;
 
             ExamAnswer answer = new ExamAnswer();
             answer.setExamRecordId(examRecordId);
@@ -121,8 +121,13 @@ public class ExamServiceImpl implements ExamService {
             answer.setIsCorrect(isCorrect ? 1 : 0);
             answer.setScore(score);
             examAnswerMapper.insert(answer);
+            examAnswerList.add(answer);
         }
 
+        // d. Stream流计算总分
+        int totalScore = examAnswerList.stream().mapToInt(ExamAnswer::getScore).sum();
+
+        // e. 更新exam_record
         record.setTotalScore(totalScore);
         record.setStatus("submitted");
         record.setExamTime(LocalDateTime.now());
@@ -132,7 +137,8 @@ public class ExamServiceImpl implements ExamService {
     }
 
     /**
-     * 规范化答案（多选题排序，去空格，转大写）
+     * 规范化答案（去空格、转大写、排序，确保单选/多选格式一致）
+     * 例：["B","A"] → "AB"，数据库存"AB"也能匹配
      */
     private String normalizeAnswer(String answer) {
         if (answer == null) {

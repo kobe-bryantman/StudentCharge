@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/layout :: head('考试成绩 - 在线考试系统')"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: studentNav"></nav>
+<div class="container">
+    <h1 class="page-title">考试成绩</h1>
+
+    <!-- 成绩概览卡片 -->
+    <div class="card text-center">
+        <h2 th:text="${course != null ? course.courseName : '未知课程'}" style="margin-bottom:16px;">课程名</h2>
+        <!-- 总分大字score-badge -->
+        <div class="score-badge"
+             th:classappend="${record.totalScore >= 80} ? 'score-high' : (${record.totalScore >= 60} ? 'score-mid' : 'score-low')"
+             style="font-size:48px; padding:16px 40px; display:inline-block;"
+             th:text="${record.totalScore} + ' 分'">0分</div>
+        <div class="mt-16" style="margin-top:16px;">
+            <span th:text="'题目总数：' + ${totalCount}">题目总数</span>
+            <span class="ml-24" style="margin-left:24px;"></span>
+            <span th:text="'答对题数：' + ${correctCount}">答对题数</span>
+            <span class="ml-24" style="margin-left:24px;"></span>
+            <span th:text="'第' + ${record.examCount} + '次考试'">第1次</span>
+        </div>
+        <div class="text-muted mt-8" style="margin-top:8px;"
+             th:text="'考试时间：' + (${record.examTime != null ? #temporals.format(record.examTime, 'yyyy-MM-dd HH:mm') : '无'})">考试时间</div>
+    </div>
+
+    <!-- 答题详情 -->
+    <div class="card">
+        <div class="card-header"><span class="card-title">答题详情</span></div>
+        <div class="card-body">
+            <div th:if="${questions.isEmpty()}" class="empty">
+                <div class="empty-text">该课程暂无考题</div>
+            </div>
+            <div th:each="q, iter : ${questions}" class="question-item">
+                <div class="question-title">
+                    <span class="question-no" th:text="'第' + ${iter.count} + '题'">第1题</span>
+                    <span th:text="${q.questionText}">题干</span>
+                    <span class="question-score">
+                        <span th:if="${q.questionType == 'single'}">[单选]</span>
+                        <span th:if="${q.questionType == 'multiple'}">[多选]</span>
+                        <span th:text="${q.score} + '分'">10分</span>
+                    </span>
+                </div>
+                <div class="question-options">
+                    <div class="option">
+                        <span th:text="'A. ' + ${q.optionA}">选项A</span>
+                        <span th:if="${q.correctAnswer != null && q.correctAnswer.contains('A')}"
+                              class="correct" style="margin-left:8px;">✓正确答案</span>
+                    </div>
+                    <div class="option">
+                        <span th:text="'B. ' + ${q.optionB}">选项B</span>
+                        <span th:if="${q.correctAnswer != null && q.correctAnswer.contains('B')}"
+                              class="correct" style="margin-left:8px;">✓正确答案</span>
+                    </div>
+                    <div class="option">
+                        <span th:text="'C. ' + ${q.optionC}">选项C</span>
+                        <span th:if="${q.correctAnswer != null && q.correctAnswer.contains('C')}"
+                              class="correct" style="margin-left:8px;">✓正确答案</span>
+                    </div>
+                    <div class="option">
+                        <span th:text="'D. ' + ${q.optionD}">选项D</span>
+                        <span th:if="${q.correctAnswer != null && q.correctAnswer.contains('D')}"
+                              class="correct" style="margin-left:8px;">✓正确答案</span>
+                    </div>
+                </div>
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid #eee;">
+                    <strong>正确答案：</strong>
+                    <span class="correct" th:text="${q.correctAnswer != null ? q.correctAnswer : '-'}">A</span>
+
+                    <span style="margin-left:32px;"></span>
+                    <strong>你的答案：</strong>
+                    <th:block th:each="a : ${answers}">
+                        <span th:if="${a.questionId == q.id}"
+                              th:classappend="${a.isCorrect == 1} ? 'correct' : 'wrong'"
+                              th:text="${a.studentAnswer}">未作答</span>
+                    </th:block>
+
+                    <span style="margin-left:32px;"></span>
+                    <strong>本题得分：</strong>
+                    <th:block th:each="a : ${answers}">
+                        <span th:if="${a.questionId == q.id}"
+                              th:classappend="${a.isCorrect == 1} ? 'correct' : 'wrong'"
+                              th:text="${a.score} + '分'">0分</span>
+                    </th:block>
+
+                    <th:block th:each="a : ${answers}">
+                        <span th:if="${a.questionId == q.id}" style="margin-left:32px;">
+                            <span th:if="${a.isCorrect == 1}" class="correct">✓ 回答正确</span>
+                            <span th:if="${a.isCorrect == 0}" class="wrong">✗ 回答错误</span>
+                        </span>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部返回按钮 -->
+    <div class="text-center" style="margin-top:24px; margin-bottom:24px;">
+        <a th:href="@{/student/exam/list}" class="btn btn-secondary">返回考试列表</a>
+    </div>
+</div>
+</body>
+</html>

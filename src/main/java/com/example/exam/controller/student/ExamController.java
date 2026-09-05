@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 学生考试控制器
@@ -76,6 +77,7 @@ public class ExamController {
 
     /**
      * 开始/继续考试
+     * 已交卷的课程不允许再次进入，重定向到成绩页
      */
     @GetMapping("/start")
     public String startExam(@RequestParam Long courseId, HttpServletRequest request, Model model) {
@@ -86,13 +88,14 @@ public class ExamController {
             return "redirect:/student/exam/list";
         }
 
+        // 已交卷记录保护：检查最新记录，如果submitted则重定向成绩页
+        ExamRecord latest = examService.getLatestRecord(student.getId(), courseId);
+        if (latest != null && "submitted".equals(latest.getStatus())) {
+            return "redirect:/student/exam/result?examRecordId=" + latest.getId();
+        }
+
         // 获取或创建ongoing考试记录
         ExamRecord record = examService.startExam(student.getId(), courseId);
-
-        // 如果已提交，重定向到成绩页
-        if ("submitted".equals(record.getStatus())) {
-            return "redirect:/student/exam/result/" + record.getId();
-        }
 
         Course course = courseService.getById(courseId);
         List<Question> questions = examService.getExamQuestions(courseId);
@@ -108,7 +111,7 @@ public class ExamController {
     }
 
     /**
-     * 交卷并自动阅卷
+     * 交卷并自动批改
      */
     @PostMapping("/submit")
     public String submitExam(@RequestParam Long examRecordId,
@@ -123,42 +126,49 @@ public class ExamController {
             if (key.startsWith("answer_")) {
                 Long questionId = Long.parseLong(key.substring(7));
                 String[] values = entry.getValue();
+                // 多选数组排序后拼接
                 Arrays.sort(values);
                 String answer = String.join("", values);
                 answers.put(questionId, answer);
             }
         }
 
-        ExamRecord record = examService.submitExam(examRecordId, student.getId(), answers);
-        return "redirect:/student/exam/result/" + record.getId();
+        // 调用Service层批改
+        ExamRecord record = examService.gradeExam(examRecordId, student.getId(), answers);
+        return "redirect:/student/exam/result?examRecordId=" + record.getId();
     }
 
     /**
      * 查看考试成绩
      */
-    @GetMapping("/result/{recordId}")
-    public String examResult(@PathVariable Long recordId, HttpServletRequest request, Model model) {
+    @GetMapping("/result")
+    public String examResult(@RequestParam Long examRecordId, HttpServletRequest request, Model model) {
         User student = getCurrentUser(request);
-        ExamRecord record = examService.getRecordById(recordId);
+        ExamRecord record = examService.getRecordById(examRecordId);
 
-        // 验证记录归属
+        // 验证记录归属当前学生
         if (record == null || !record.getStudentId().equals(student.getId())) {
             return "redirect:/student/exam/list";
         }
 
-        List<ExamAnswer> answers = examService.listAnswersByRecordId(recordId);
+        List<ExamAnswer> answers = examService.listAnswersByRecordId(examRecordId);
         Course course = courseService.getById(record.getCourseId());
         List<Question> questions = course != null ? examService.getExamQuestions(course.getId()) : new ArrayList<>();
 
         long correctCount = answers.stream().filter(a -> a.getIsCorrect() == 1).count();
 
+        // 构建题目ID -> 答题明细映射，便于页面展示
+        Map<Long, ExamAnswer> answerMap = answers.stream()
+                .collect(Collectors.toMap(ExamAnswer::getQuestionId, a -> a));
+
         model.addAttribute("record", record);
         model.addAttribute("answers", answers);
+        model.addAttribute("answerMap", answerMap);
         model.addAttribute("course", course);
         model.addAttribute("questions", questions);
         model.addAttribute("correctCount", correctCount);
         model.addAttribute("totalCount", questions.size());
-        return "student/exam-result";
+        return "student/exam/result";
     }
 
 }
