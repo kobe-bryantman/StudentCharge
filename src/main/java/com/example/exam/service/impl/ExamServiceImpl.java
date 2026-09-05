@@ -35,11 +35,24 @@ public class ExamServiceImpl implements ExamService {
     @Override
     @Transactional
     public ExamRecord startExam(Long studentId, Long courseId) {
+        // 优先复用进行中的考试记录
+        ExamRecord ongoing = examRecordMapper.selectOne(
+                new LambdaQueryWrapper<ExamRecord>()
+                        .eq(ExamRecord::getStudentId, studentId)
+                        .eq(ExamRecord::getCourseId, courseId)
+                        .eq(ExamRecord::getStatus, "ongoing")
+                        .last("LIMIT 1"));
+        if (ongoing != null) {
+            return ongoing;
+        }
+
+        // 计算新的exam_count：该学生该课程已有最大count + 1
         List<ExamRecord> existing = examRecordMapper.selectList(
                 new LambdaQueryWrapper<ExamRecord>()
                         .eq(ExamRecord::getStudentId, studentId)
-                        .eq(ExamRecord::getCourseId, courseId));
-        int examCount = existing.size() + 1;
+                        .eq(ExamRecord::getCourseId, courseId)
+                        .orderByDesc(ExamRecord::getExamCount));
+        int examCount = existing.isEmpty() ? 1 : existing.get(0).getExamCount() + 1;
 
         ExamRecord record = new ExamRecord();
         record.setStudentId(studentId);
@@ -51,6 +64,16 @@ public class ExamServiceImpl implements ExamService {
         examRecordMapper.insert(record);
 
         return record;
+    }
+
+    @Override
+    public ExamRecord getLatestRecord(Long studentId, Long courseId) {
+        return examRecordMapper.selectOne(
+                new LambdaQueryWrapper<ExamRecord>()
+                        .eq(ExamRecord::getStudentId, studentId)
+                        .eq(ExamRecord::getCourseId, courseId)
+                        .orderByDesc(ExamRecord::getExamCount)
+                        .last("LIMIT 1"));
     }
 
     @Override

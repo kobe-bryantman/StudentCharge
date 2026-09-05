@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/layout :: head('我的考试 - 在线考试系统')"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: studentNav"></nav>
+<div class="container">
+    <h1 class="page-title">我的考试</h1>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>课程名称</th>
+                <th>授课教师</th>
+                <th>考试状态</th>
+                <th style="width:180px;">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${courses.isEmpty()}">
+                <td colspan="4" class="text-center">
+                    <div class="empty">
+                        <div class="empty-text">暂无课程，请先去选课</div>
+                        <a th:href="@{/student/course/available}" class="btn btn-primary">去选课</a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:each="c : ${courses}">
+                <td th:text="${c.courseName}">课程名</td>
+                <td th:text="${teacherNames[c.id]}">教师名</td>
+                <td>
+                    <span th:switch="${latestRecords[c.id] != null ? latestRecords[c.id].status : null}">
+                        <!-- 无考试记录 -->
+                        <span th:case="null" class="badge">未考试</span>
+                        <!-- 进行中 -->
+                        <span th:case="'ongoing'" class="badge" style="background:#ffc107;">考试中</span>
+                        <!-- 已交卷：显示分数 -->
+                        <span th:case="'submitted'" class="score-badge"
+                              th:classappend="${latestRecords[c.id].totalScore >= 80} ? 'score-high' : (${latestRecords[c.id].totalScore >= 60} ? 'score-mid' : 'score-low')"
+                              th:text="'已考完，' + ${latestRecords[c.id].totalScore} + '分'">已考完，0分</span>
+                    </span>
+                </td>
+                <td>
+                    <span th:switch="${latestRecords[c.id] != null ? latestRecords[c.id].status : null}">
+                        <!-- 无记录：开始考试 -->
+                        <a th:case="null" th:href="@{/student/exam/start(courseId=${c.id})}"
+                           class="btn btn-primary btn-sm">开始考试</a>
+                        <!-- 进行中：继续考试 -->
+                        <a th:case="'ongoing'" th:href="@{/student/exam/start(courseId=${c.id})}"
+                           class="btn btn-warning btn-sm">继续考试</a>
+                        <!-- 已交卷：按钮置灰（重考第7天做） -->
+                        <span th:case="'submitted'">
+                            <button type="button" class="btn btn-secondary btn-sm" disabled>已完成</button>
+                            <a th:href="@{/student/exam/result/{id}(id=${latestRecords[c.id].id})}"
+                               class="btn btn-success btn-sm">查看成绩</a>
+                        </span>
+                    </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package com.example.exam.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.exam.common.BusinessException;
 import com.example.exam.entity.StudentCourse;
 import com.example.exam.mapper.StudentCourseMapper;
 import com.example.exam.service.StudentCourseService;
@@ -40,12 +41,13 @@ public class StudentCourseServiceImpl implements StudentCourseService {
                 new LambdaQueryWrapper<StudentCourse>()
                         .eq(StudentCourse::getStudentId, studentId)
                         .eq(StudentCourse::getCourseId, courseId));
-        if (exist == null) {
-            StudentCourse sc = new StudentCourse();
-            sc.setStudentId(studentId);
-            sc.setCourseId(courseId);
-            studentCourseMapper.insert(sc);
+        if (exist != null) {
+            throw new BusinessException("已选过该课程");
         }
+        StudentCourse sc = new StudentCourse();
+        sc.setStudentId(studentId);
+        sc.setCourseId(courseId);
+        studentCourseMapper.insert(sc);
     }
 
     @Override

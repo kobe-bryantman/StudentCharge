@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/layout :: head('选课中心 - 在线考试系统')"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: studentNav"></nav>
+<div class="container">
+    <h1 class="page-title">选课中心</h1>
+
+    <!-- 成功提示 -->
+    <div th:if="${msg}" class="msg-success" th:text="${msg}" style="padding:10px; margin-bottom:15px; border-radius:4px;">操作成功</div>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>课程名称</th>
+                <th>授课教师</th>
+                <th>课程描述</th>
+                <th style="width:150px;">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${courses.isEmpty()}">
+                <td colspan="4" class="text-center text-muted">暂无课程</td>
+            </tr>
+            <tr th:each="c : ${courses}">
+                <td th:text="${c.courseName}">课程名</td>
+                <td th:text="${teacherNames[c.id]}">教师名</td>
+                <td th:text="${c.description}">课程描述</td>
+                <td>
+                    <!-- 已选状态 -->
+                    <span th:if="${selectedIds.contains(c.id)}" class="btn btn-secondary btn-sm" style="cursor:default;">已选</span>
+                    <!-- 未选状态：form post选课 -->
+                    <form th:if="${!selectedIds.contains(c.id)}"
+                          th:action="@{/student/course/select}" method="post" style="display:inline;">
+                        <input type="hidden" name="courseId" th:value="${c.id}">
+                        <button type="submit" class="btn btn-primary btn-sm">选择课程</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

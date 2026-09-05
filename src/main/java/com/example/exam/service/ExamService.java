@@ -16,9 +16,14 @@ import java.util.Map;
 public interface ExamService {
 
     /**
-     * 开始考试
+     * 开始考试（有ongoing记录则复用，否则新建）
      */
     ExamRecord startExam(Long studentId, Long courseId);
+
+    /**
+     * 查询学生某课程的最新考试记录（按exam_count降序取第一条）
+     */
+    ExamRecord getLatestRecord(Long studentId, Long courseId);
 
     /**
      * 获取考试题目列表
