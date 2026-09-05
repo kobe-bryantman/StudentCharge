@@ -16,11 +16,15 @@ import javax.servlet.http.HttpSession;
 /**
  * 登录控制器
  * 处理登录页面展示、登录提交、退出登录、根路径跳转
+ * session key = "loginUser"
  *
  * @author example
  */
 @Controller
 public class LoginController {
+
+    /** Session中存储当前登录用户的key */
+    public static final String LOGIN_USER = "loginUser";
 
     @Autowired
     private UserService userService;
@@ -31,7 +35,7 @@ public class LoginController {
     @GetMapping("/")
     public String root(HttpServletRequest request) {
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute(LOGIN_USER);
         if (user == null) {
             return "redirect:/login";
         }
@@ -39,50 +43,42 @@ public class LoginController {
     }
 
     /**
-     * 跳转登录页面
-     * 访问 http://localhost:3721/login
+     * GET /login 返回登录页，如果已登录则直接跳对应首页
      */
     @GetMapping("/login")
-    public String loginPage(@RequestParam(required = false) String error,
-                            HttpServletRequest request,
-                            Model model) {
-        // 如果已登录，直接跳首页
+    public String loginPage(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute(LOGIN_USER);
         if (user != null) {
             return "redirect:" + getIndexUrl(user.getRole());
-        }
-        if (error != null) {
-            model.addAttribute("error", error);
         }
         return "login";
     }
 
     /**
-     * 处理登录提交（真实数据库认证）
+     * POST /doLogin 处理登录提交
+     * 登录成功：session存loginUser，按role跳转
+     * 登录失败：返回登录页，model加msg="账号或密码错误"
      */
-    @PostMapping("/login")
+    @PostMapping("/doLogin")
     public String doLogin(@RequestParam String username,
                           @RequestParam String password,
                           HttpServletRequest request,
                           Model model) {
         try {
-            // 调用Service进行认证
             User user = userService.login(username, password);
-            // 登录成功，设置session
             HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            // 根据角色跳转首页
+            session.setAttribute(LOGIN_USER, user);
             return "redirect:" + getIndexUrl(user.getRole());
         } catch (BusinessException e) {
-            // 登录失败，携带错误信息返回登录页
-            model.addAttribute("error", e.getMessage());
+            // 登录失败，统一提示
+            model.addAttribute("msg", "账号或密码错误");
             return "login";
         }
     }
 
     /**
-     * 退出登录
+     * GET /logout 清除session，重定向登录页
      */
     @GetMapping("/logout")
     public String logout(HttpServletRequest request) {

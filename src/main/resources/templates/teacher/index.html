@@ -1,59 +1,58 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>教师首页 - 在线考试系统</title>
-    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+    <th:block th:replace="fragments/layout :: head('教师首页 - 在线考试系统')"></th:block>
 </head>
 <body>
 <nav th:replace="fragments/layout :: teacherNav"></nav>
 <div class="container">
-    <h1 class="page-title">教师首页<span class="subtitle">欢迎使用在线考试系统</span></h1>
+    <h1 class="page-title">教师首页</h1>
 
+    <!-- 欢迎语 -->
+    <div class="card">
+        <div class="card-body">
+            <p class="text-muted">欢迎使用在线考试系统，您可以管理课程、维护题库、查看考试情况。</p>
+        </div>
+    </div>
+
+    <!-- 功能菜单卡片 -->
     <div class="form-row">
-        <div class="card" style="flex:1;">
-            <div class="card-header">
-                <span class="card-title">我的课程</span>
-            </div>
-            <div class="card-body">
-                <div style="font-size: 36px; font-weight: bold; color: #409eff;" th:text="${courseCount}">0</div>
-                <div class="text-muted">门课程</div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>个人信息</h3>
+                <p class="text-muted">查看和修改个人资料</p>
+                <a th:href="@{/teacher/profile}" class="btn btn-primary">进入</a>
             </div>
         </div>
-        <div class="card" style="flex:1;">
-            <div class="card-header">
-                <span class="card-title">题库题目</span>
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>考试课程管理</h3>
+                <p class="text-muted">管理课程和题库</p>
+                <a th:href="@{/teacher/course}" class="btn btn-primary">进入</a>
             </div>
-            <div class="card-body">
-                <div style="font-size: 36px; font-weight: bold; color: #67c23a;" th:text="${questionCount}">0</div>
-                <div class="text-muted">道题目</div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>考试情况</h3>
+                <p class="text-muted">查看学生考试成绩</p>
+                <a th:href="@{/teacher/exam}" class="btn btn-primary">进入</a>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <span class="card-title">最近课程</span>
-            <a th:href="@{/teacher/course}" class="btn btn-primary btn-sm">课程管理</a>
-        </div>
-        <div class="card-body">
-            <div th:if="${courses.isEmpty()}" class="empty">
-                <div class="empty-text">暂无课程</div>
-                <a th:href="@{/teacher/course/add}" class="btn btn-primary">添加第一门课程</a>
+    <!-- 数据统计 -->
+    <div class="form-row">
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${courseCount}">0</h2>
+                <p class="text-muted">门课程</p>
             </div>
-            <table th:if="${!courses.isEmpty()}" class="table">
-                <thead>
-                <tr><th>课程名称</th><th>描述</th><th>操作</th></tr>
-                </thead>
-                <tbody>
-                <tr th:each="c : ${courses}">
-                    <td th:text="${c.courseName}">课程名</td>
-                    <td th:text="${c.description}">描述</td>
-                    <td>
-                        <a th:href="@{/teacher/question(courseId=${c.id})}" class="btn btn-secondary btn-sm">题库</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${questionCount}">0</h2>
+                <p class="text-muted">道题目</p>
+            </div>
         </div>
     </div>
 </div>

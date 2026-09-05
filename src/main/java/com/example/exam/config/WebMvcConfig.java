@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Web MVC配置类
- * 注册登录拦截器
+ * 注册登录拦截器，拦截所有路径，放行登录相关和静态资源
  *
  * @author example
  */
@@ -19,15 +19,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 拦截教师端和学生端所有路径
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/teacher/**", "/student/**")
+                .addPathPatterns("/**")
                 .excludePathPatterns(
+                        "/login",
+                        "/doLogin",
+                        "/logout",
                         "/css/**",
                         "/js/**",
                         "/images/**",
                         "/hello",
-                        "/login"
+                        "/"
                 );
     }
 

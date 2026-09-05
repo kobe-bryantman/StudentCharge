@@ -1,51 +1,81 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>个人信息 - 在线考试系统</title>
-    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+    <th:block th:replace="fragments/layout :: head('教师个人信息 - 在线考试系统')"></th:block>
 </head>
 <body>
 <nav th:replace="fragments/layout :: teacherNav"></nav>
 <div class="container">
     <h1 class="page-title">个人信息</h1>
 
+    <!-- 保存成功提示 -->
+    <div class="msg msg-success" th:if="${msg != null}" th:text="${msg}"></div>
+
     <div class="card">
-        <form th:action="@{/teacher/profile}" method="post">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>登录账号</label>
-                    <input type="text" class="form-control" th:value="${user.username}" disabled>
+        <div class="card-header">
+            <span class="card-title">基本信息</span>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/teacher/profile/update}" method="post">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>登录账号</label>
+                        <input type="text" class="form-control readonly" th:value="${user.username}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>工号</label>
+                        <input type="text" class="form-control readonly" th:value="${user.teacherNo}" readonly>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>工号</label>
-                    <input type="text" class="form-control" th:value="${user.teacherNo}" disabled>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>真实姓名</label>
+                        <input type="text" name="name" class="form-control" required th:value="${user.name}">
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select name="gender" class="form-control">
+                            <option value="男" th:selected="${user.gender == '男'}">男</option>
+                            <option value="女" th:selected="${user.gender == '女'}">女</option>
+                        </select>
+                    </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>手机号</label>
+                        <input type="text" name="phone" class="form-control" th:value="${user.phone}">
+                    </div>
+                    <div class="form-group">
+                        <label>所在学院</label>
+                        <input type="text" name="college" class="form-control" th:value="${user.college}">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">保存修改</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 教授课程列表（只读） -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">教授课程</span>
+        </div>
+        <div class="card-body">
+            <div th:if="${courses.isEmpty()}" class="empty">
+                <div class="empty-text">暂未教授任何课程</div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>真实姓名</label>
-                    <input type="text" name="name" class="form-control" required th:value="${user.name}">
-                </div>
-                <div class="form-group">
-                    <label>性别</label>
-                    <select name="gender" class="form-control">
-                        <option value="男" th:selected="${user.gender == '男'}">男</option>
-                        <option value="女" th:selected="${user.gender == '女'}">女</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>手机号</label>
-                    <input type="text" name="phone" class="form-control" th:value="${user.phone}">
-                </div>
-                <div class="form-group">
-                    <label>所在学院</label>
-                    <input type="text" name="college" class="form-control" th:value="${user.college}">
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary">保存修改</button>
-        </form>
+            <table th:if="${!courses.isEmpty()}" class="table">
+                <thead>
+                <tr><th>课程名称</th><th>课程描述</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${courses}">
+                    <td th:text="${c.courseName}">课程名</td>
+                    <td th:text="${c.description}">描述</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 </body>

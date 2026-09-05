@@ -299,6 +299,13 @@ img {
     cursor: not-allowed;
 }
 
+/* 只读输入框样式 */
+.form-control.readonly {
+    background-color: #f5f7fa;
+    color: #909399;
+    cursor: not-allowed;
+}
+
 textarea.form-control {
     min-height: 100px;
     resize: vertical;

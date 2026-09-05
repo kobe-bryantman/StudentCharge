@@ -1,5 +1,6 @@
 package com.example.exam.config;
 
+import com.example.exam.controller.LoginController;
 import com.example.exam.entity.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -10,7 +11,9 @@ import javax.servlet.http.HttpSession;
 
 /**
  * 登录拦截器
- * 保护/teacher/*和/student/*路径，未登录用户重定向到登录页
+ * 1. 未登录用户重定向到 /login
+ * 2. 访问 /teacher/** 要求 role=teacher
+ * 3. 访问 /student/** 要求 role=student
  *
  * @author example
  */
@@ -21,23 +24,35 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String uri = request.getRequestURI();
 
-        // 获取session
+        // 放行登录相关路径（双重保险，WebMvcConfig也已排除）
+        String contextPath = request.getContextPath();
+        if (uri.startsWith(contextPath + "/login")
+                || uri.startsWith(contextPath + "/doLogin")
+                || uri.startsWith(contextPath + "/logout")
+                || uri.startsWith(contextPath + "/hello")
+                || uri.startsWith(contextPath + "/css/")
+                || uri.startsWith(contextPath + "/js/")
+                || uri.startsWith(contextPath + "/images/")) {
+            return true;
+        }
+
+        // 获取session中的登录用户
         HttpSession session = request.getSession();
-        User user = (User) session.getAttribute("user");
+        User user = (User) session.getAttribute(LoginController.LOGIN_USER);
 
         // 未登录，重定向到登录页
         if (user == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(contextPath + "/login");
             return false;
         }
 
         // 角色权限校验
-        if (uri.startsWith("/teacher/") && !"teacher".equals(user.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/login?error=无权限访问教师端");
+        if (uri.startsWith(contextPath + "/teacher/") && !"teacher".equals(user.getRole())) {
+            response.sendRedirect(contextPath + "/login");
             return false;
         }
-        if (uri.startsWith("/student/") && !"student".equals(user.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/login?error=无权限访问学生端");
+        if (uri.startsWith(contextPath + "/student/") && !"student".equals(user.getRole())) {
+            response.sendRedirect(contextPath + "/login");
             return false;
         }
 

@@ -1,62 +1,64 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>学生首页 - 在线考试系统</title>
-    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+    <th:block th:replace="fragments/layout :: head('学生首页 - 在线考试系统')"></th:block>
 </head>
 <body>
 <nav th:replace="fragments/layout :: studentNav"></nav>
 <div class="container">
-    <h1 class="page-title">学生首页<span class="subtitle">欢迎使用在线考试系统</span></h1>
+    <h1 class="page-title">学生首页</h1>
 
+    <!-- 欢迎语 -->
+    <div class="card">
+        <div class="card-body">
+            <p class="text-muted">欢迎使用在线考试系统，您可以选课、参加考试、查看成绩。</p>
+        </div>
+    </div>
+
+    <!-- 功能菜单卡片 -->
     <div class="form-row">
-        <div class="card" style="flex:1;">
-            <div class="card-header"><span class="card-title">已选课程</span></div>
-            <div class="card-body">
-                <div style="font-size: 36px; font-weight: bold; color: #409eff;" th:text="${selectedCourses.size()}">0</div>
-                <div class="text-muted">门课程</div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>个人信息</h3>
+                <p class="text-muted">查看和修改个人资料</p>
+                <a th:href="@{/student/profile}" class="btn btn-primary">进入</a>
             </div>
         </div>
-        <div class="card" style="flex:1;">
-            <div class="card-header"><span class="card-title">考试记录</span></div>
-            <div class="card-body">
-                <div style="font-size: 36px; font-weight: bold; color: #e6a23c;" th:text="${recordCount}">0</div>
-                <div class="text-muted">次考试</div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>选课中心</h3>
+                <p class="text-muted">浏览和选择课程</p>
+                <a th:href="@{/student/course}" class="btn btn-primary">进入</a>
             </div>
         </div>
-        <div class="card" style="flex:1;">
-            <div class="card-header"><span class="card-title">已交卷</span></div>
-            <div class="card-body">
-                <div style="font-size: 36px; font-weight: bold; color: #67c23a;" th:text="${submittedCount}">0</div>
-                <div class="text-muted">次</div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h3>我的考试</h3>
+                <p class="text-muted">参加考试和查看成绩</p>
+                <a th:href="@{/student/exam}" class="btn btn-primary">进入</a>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <span class="card-title">我的课程</span>
-            <a th:href="@{/student/exam}" class="btn btn-primary btn-sm">前往考试</a>
-        </div>
-        <div class="card-body">
-            <div th:if="${selectedCourses.isEmpty()}" class="empty">
-                <div class="empty-text">还没有选课</div>
-                <a th:href="@{/student/course}" class="btn btn-primary">去选课</a>
+    <!-- 数据统计 -->
+    <div class="form-row">
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${selectedCourses.size()}">0</h2>
+                <p class="text-muted">门已选课程</p>
             </div>
-            <table th:if="${!selectedCourses.isEmpty()}" class="table">
-                <thead>
-                <tr><th>课程名称</th><th>描述</th><th>操作</th></tr>
-                </thead>
-                <tbody>
-                <tr th:each="c : ${selectedCourses}">
-                    <td th:text="${c.courseName}">课程名</td>
-                    <td th:text="${c.description}">描述</td>
-                    <td>
-                        <a th:href="@{/student/exam}" class="btn btn-primary btn-sm">参加考试</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${recordCount}">0</h2>
+                <p class="text-muted">次考试记录</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${submittedCount}">0</h2>
+                <p class="text-muted">次已交卷</p>
+            </div>
         </div>
     </div>
 </div>

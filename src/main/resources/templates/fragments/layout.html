@@ -2,10 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<!-- 公共head片段（meta + CSS），页面用 th:insert 插入到 head 中 -->
-<th:block th:fragment="commonHead">
+<!-- head fragment：设置页面标题、引入公共CSS -->
+<th:block th:fragment="head(title)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">在线考试系统</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
 </th:block>
 
@@ -19,8 +20,8 @@
         <a th:href="@{/teacher/profile}">个人信息</a>
         <a th:href="@{/logout}">退出登录</a>
     </div>
-    <span class="navbar-user" th:if="${session.user != null}">
-        欢迎，<span th:text="${session.user.name}">用户</span>（教师）
+    <span class="navbar-user" th:if="${session.loginUser != null}">
+        欢迎，<span th:text="${session.loginUser.name}">用户</span>（教师）
     </span>
 </nav>
 
@@ -34,8 +35,8 @@
         <a th:href="@{/student/profile}">个人信息</a>
         <a th:href="@{/logout}">退出登录</a>
     </div>
-    <span class="navbar-user" th:if="${session.user != null}">
-        欢迎，<span th:text="${session.user.name}">用户</span>（学生）
+    <span class="navbar-user" th:if="${session.loginUser != null}">
+        欢迎，<span th:text="${session.loginUser.name}">用户</span>（学生）
     </span>
 </nav>
 

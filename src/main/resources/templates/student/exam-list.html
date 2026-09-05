@@ -1,8 +1,7 @@
 ﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>我的考试 - 在线考试系统</title>
-    <th:block th:insert="fragments/layout :: commonHead"></th:block>
+    <th:block th:replace="fragments/layout :: head('我的考试 - 在线考试系统')"></th:block>
 </head>
 <body>
 <nav th:replace="fragments/layout :: studentNav"></nav>
