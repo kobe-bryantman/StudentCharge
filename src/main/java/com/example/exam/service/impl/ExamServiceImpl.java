@@ -178,4 +178,31 @@ public class ExamServiceImpl implements ExamService {
                         .orderByDesc(ExamRecord::getExamTime));
     }
 
+    // ==================== 教师端考试情况查询 ====================
+
+    @Override
+    public int countSubmittedByCourse(Long courseId) {
+        return examRecordMapper.countSubmittedByCourse(courseId);
+    }
+
+    @Override
+    public List<StudentScoreVO> listLatestSubmittedByCourse(Long courseId) {
+        return examRecordMapper.listLatestSubmittedByCourse(courseId);
+    }
+
+    @Override
+    public CourseStatisticsVO getCourseStatistics(Long courseId) {
+        return examRecordMapper.getCourseStatistics(courseId);
+    }
+
+    @Override
+    public List<ExamRecord> listSubmittedRecordsByStudentAndCourse(Long studentId, Long courseId) {
+        return examRecordMapper.selectList(
+                new LambdaQueryWrapper<ExamRecord>()
+                        .eq(ExamRecord::getStudentId, studentId)
+                        .eq(ExamRecord::getCourseId, courseId)
+                        .eq(ExamRecord::getStatus, "submitted")
+                        .orderByAsc(ExamRecord::getExamCount));
+    }
+
 }

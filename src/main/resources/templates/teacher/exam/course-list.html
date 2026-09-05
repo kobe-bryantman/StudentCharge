@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/layout :: head('考试情况 - 在线考试系统')"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <h1 class="page-title">考试情况</h1>
+
+    <div class="card">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>课程名称</th>
+                <th style="width:150px;">已考人数</th>
+                <th style="width:200px;">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${courses.isEmpty()}">
+                <td colspan="3" class="text-center">
+                    <div class="empty">
+                        <div class="empty-text">暂无课程</div>
+                        <a th:href="@{/teacher/course/add}" class="btn btn-primary">去新增课程</a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:each="c : ${courses}">
+                <td th:text="${c.courseName}">课程名</td>
+                <td>
+                    <span th:text="${examCountMap[c.id]} + ' 人'">0 人</span>
+                </td>
+                <td>
+                    <a th:href="@{/teacher/exam/student-list(courseId=${c.id})}"
+                       class="btn btn-primary btn-sm">查看考试情况</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

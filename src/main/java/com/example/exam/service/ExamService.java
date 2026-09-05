@@ -1,8 +1,6 @@
 package com.example.exam.service;
 
-import com.example.exam.entity.ExamAnswer;
-import com.example.exam.entity.ExamRecord;
-import com.example.exam.entity.Question;
+import com.example.exam.entity.*;
 
 import java.util.List;
 import java.util.Map;
@@ -60,5 +58,29 @@ public interface ExamService {
      * 查询课程的所有考试记录
      */
     List<ExamRecord> listByCourseId(Long courseId);
+
+    // ==================== 教师端考试情况查询 ====================
+
+    /**
+     * 统计某课程已考人数（status=submitted，按student_id去重）
+     */
+    int countSubmittedByCourse(Long courseId);
+
+    /**
+     * 查询某课程所有已交卷学生的最新成绩（每个学生取exam_count最大的submitted记录）
+     * 关联user查学生姓名、学号、学院，按成绩降序排列
+     */
+    List<StudentScoreVO> listLatestSubmittedByCourse(Long courseId);
+
+    /**
+     * 课程成绩统计：平均分、最高分、及格率、参考人数
+     * 基于每个学生最新的submitted记录统计
+     */
+    CourseStatisticsVO getCourseStatistics(Long courseId);
+
+    /**
+     * 查询某学生某课程的所有已交卷记录（按exam_count升序）
+     */
+    List<ExamRecord> listSubmittedRecordsByStudentAndCourse(Long studentId, Long courseId);
 
 }

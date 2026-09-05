@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/layout :: head('全班成绩 - 在线考试系统')"></th:block>
+</head>
+<body>
+<nav th:replace="fragments/layout :: teacherNav"></nav>
+<div class="container">
+    <h1 class="page-title" th:text="'全班成绩 - ' + ${course.courseName}">全班成绩</h1>
+
+    <!-- 统计卡片 -->
+    <div class="form-row">
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${statistics.studentCount} != null ? ${statistics.studentCount} : 0">0</h2>
+                <p class="text-muted">参考人数</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${statistics.avgScore} != null ? ${#numbers.formatDecimal(statistics.avgScore, 1, 1)} : 0">0</h2>
+                <p class="text-muted">平均分</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${statistics.maxScore} != null ? ${statistics.maxScore} : 0">0</h2>
+                <p class="text-muted">最高分</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 th:text="${statistics.passRate} != null ? ${#numbers.formatDecimal(statistics.passRate, 1, 1)} + '%' : '0%'">0%</h2>
+                <p class="text-muted">及格率</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成绩列表 -->
+    <div class="card">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>学生姓名</th>
+                <th>学号</th>
+                <th>学院</th>
+                <th>成绩</th>
+                <th>考试时间</th>
+                <th>考试次数</th>
+                <th style="width:120px;">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${students.isEmpty()}">
+                <td colspan="7" class="text-center">
+                    <div class="empty">
+                        <div class="empty-text">暂无学生考试成绩</div>
+                    </div>
+                </td>
+            </tr>
+            <tr th:each="s : ${students}">
+                <td th:text="${s.name}">姓名</td>
+                <td th:text="${s.studentNo}">学号</td>
+                <td th:text="${s.college}">学院</td>
+                <td>
+                    <span class="score-badge"
+                          th:classappend="${s.totalScore >= 80} ? 'score-high' : (${s.totalScore >= 60} ? 'score-mid' : 'score-low')"
+                          th:text="${s.totalScore} + '分'">0分</span>
+                </td>
+                <td th:text="${s.examTime != null ? #temporals.format(s.examTime, 'yyyy-MM-dd HH:mm') : '-'}">考试时间</td>
+                <td th:text="'第' + ${s.examCount} + '次'">第1次</td>
+                <td>
+                    <a th:href="@{/teacher/exam/student-detail(studentId=${s.studentId}, courseId=${course.id})}"
+                       class="btn btn-primary btn-sm">查看详情</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 返回按钮 -->
+    <div class="text-center" style="margin-top:24px;">
+        <a th:href="@{/teacher/exam/course-list}" class="btn btn-secondary">返回课程列表</a>
+    </div>
+</div>
+</body>
+</html>
