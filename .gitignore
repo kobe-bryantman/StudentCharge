@@ -1,6 +1,7 @@
 # ===== Java =====
 *.class
 *.jar
+!.mvn/wrapper/maven-wrapper.jar
 *.war
 *.ear
 *.zip
